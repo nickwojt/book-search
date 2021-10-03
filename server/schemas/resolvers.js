@@ -5,8 +5,10 @@ const { signToken } = require("../utils/auth");
 
 const resolvers = {
   Query: {
-    user: async (parent, { userId }) => {
-      return User.findOne({ _id: userId });
+    me: async (parent, { userId, username }) => {
+      return User.findOne({
+        $or: [{ _id: userId }, { username: username }],
+      });
     },
   },
 
@@ -14,7 +16,7 @@ const resolvers = {
     createUser: async (parent, { username, email, password }) => {
       const user = await User.create({ username, email, password });
       const token = signToken(user);
-      return { token, profile };
+      return { token, user };
     },
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
@@ -32,11 +34,11 @@ const resolvers = {
       const token = signToken(user);
       return { token, user };
     },
-    saveBook: async (parent, { userId, book }) => {
+    saveBook: async (parent, { userId, bookId }) => {
       return User.findOneAndUpdate(
         { _id: userId },
         {
-          $addToSet: { savedBooks: book },
+          $addToSet: { savedBooks: bookId },
         },
         {
           new: true,
@@ -44,5 +46,14 @@ const resolvers = {
         }
       );
     },
+    deleteBook: async (parent, { userId, bookId }) => {
+      return User.findOneAndUpdate(
+        { _id: userId },
+        { $pull: { savedBooks: bookId } },
+        { new: true }
+      );
+    },
   },
 };
+
+module.exports = resolvers;
