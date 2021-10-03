@@ -44,7 +44,7 @@ export const SAVE_BOOK = gql`
       token
       user {
         _id
-        name
+        username
       }
     }
   }
@@ -56,7 +56,7 @@ export const REMOVE_BOOK = gql`
       token
       user {
         _id
-        name
+        username
       }
     }
   }
